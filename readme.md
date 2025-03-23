@@ -144,14 +144,96 @@ spec:
     targetPort: 80
 ```
 
-### Diferenças entre Pod, Deployment e LoadBalancer
+### Criando um NodePort
 
-| Característica | Pod | Deployment | LoadBalancer |
-|----------------|-----|------------|--------------|
-| `kind` | Pod | Deployment | Service |
-| Escalabilidade | Não escalável por si só | Suporta escalabilidade | N/A |
-| Atualizações | Não suporta atualizações automáticas | Suporta atualizações automáticas | N/A |
-| Uso | Usado para executar um único contêiner ou um grupo de contêineres | Usado para gerenciar um conjunto de réplicas de Pods | Usado para expor serviços para fora do cluster |
+Um NodePort é um tipo de serviço que expõe uma aplicação em um número de porta estático em cada nó do cluster. Aqui está um exemplo de YAML para criar um NodePort:
+
+```yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: meu-nodeport
+spec:
+  type: NodePort
+  selector:
+    app: meu-app
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 80
+    nodePort: 30007
+```
+
+### Usando kubectl exec --stdin --tty
+
+O comando `kubectl exec` permite que você execute comandos em um contêiner em execução. A opção `--stdin` permite que você envie entrada para o comando, e `--tty` aloca um terminal TTY. Exemplo:
+
+```sh
+kubectl exec --stdin --tty <nome-do-pod> -- /bin/bash
+```
+
+### Usando kubectl port-forward
+
+O comando `kubectl port-forward` permite que você encaminhe uma porta local para uma porta em um pod no cluster. Exemplo:
+
+```sh
+kubectl port-forward <nome-do-pod> 8080:80
+```
+
+### Deploy e Service em um único arquivo YAML
+
+Você pode definir múltiplos recursos em um único arquivo YAML separando-os com `---`. Exemplo:
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: meu-deployment
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: meu-app
+  template:
+    metadata:
+      labels:
+        app: meu-app
+    spec:
+      containers:
+      - name: meu-container
+        image: nginx
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: meu-service
+spec:
+  type: LoadBalancer
+  selector:
+    app: meu-app
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 80
+```
+
+### Diferenças entre Service e Pods
+
+| Característica | Service | Pod |
+|----------------|---------|-----|
+| `kind` | Service | Pod |
+| Função | Expor aplicações como serviços de rede | Executar contêineres |
+| Persistência | Persistente | Efêmero |
+| Escalabilidade | N/A | Não escalável por si só |
+
+### Diferença entre Pod e Container
+
+| Característica | Pod | Container |
+|----------------|-----|-----------|
+| `kind` | Pod | N/A |
+| Função | Agrupar um ou mais contêineres | Executar uma aplicação isolada |
+| Escalabilidade | Não escalável por si só | N/A |
+| Gerenciamento | Gerenciado pelo Kubernetes | Gerenciado pelo Docker ou outro runtime de contêiner |
 
 ### Criando recursos com YAML
 
