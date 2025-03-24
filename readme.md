@@ -235,6 +235,90 @@ spec:
 | Escalabilidade | Não escalável por si só | N/A |
 | Gerenciamento | Gerenciado pelo Kubernetes | Gerenciado pelo Docker ou outro runtime de contêiner |
 
+### Criando e usando Persistent Volume (PV)
+
+Um Persistent Volume (PV) é um recurso de armazenamento no Kubernetes que existe independentemente dos pods. Aqui está um exemplo de YAML para criar um PV:
+
+```yaml
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: meu-pv
+spec:
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: "/mnt/data"
+```
+
+### Criando e usando Persistent Volume Claim (PVC)
+
+Um Persistent Volume Claim (PVC) é uma solicitação de armazenamento por um usuário. Aqui está um exemplo de YAML para criar um PVC:
+
+```yaml
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: meu-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+```
+
+### Criando e usando PV e PVC dentro do GCP
+
+No GCP, você pode criar um PV e PVC usando o Google Cloud Persistent Disk. Aqui está um exemplo de YAML para criar um PV e PVC no GCP:
+
+```yaml
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: gcp-pv
+spec:
+  capacity:
+    storage: 10Gi
+  accessModes:
+    - ReadWriteOnce
+  gcePersistentDisk:
+    pdName: my-gce-disk
+    fsType: ext4
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: gcp-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+```
+
+### Criando um NFS (Filestore) no GCP para usar com PV
+
+O Google Cloud Filestore é um serviço de armazenamento de arquivos NFS. Aqui está um exemplo de YAML para criar um PV usando um Filestore NFS:
+
+```yaml
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: nfs-pv
+spec:
+  capacity:
+    storage: 1Ti
+  accessModes:
+    - ReadWriteMany
+  nfs:
+    path: /path/to/share
+    server: nfs-server.example.com
+```
+
 ### Criando recursos com YAML
 
 Para criar recursos definidos em um arquivo YAML, use o comando:
